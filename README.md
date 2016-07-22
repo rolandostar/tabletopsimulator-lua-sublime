@@ -18,6 +18,7 @@ That's it. I'll work on stuff like console output and Get Scripts on reload and 
 You can install this plugin through [Package Control](https://packagecontrol.io/installation)
 
 Step-By-Step:
+
 1. Press “Ctrl + Shift + P” to open the Command Palette
 2. Type “Install Package” and select "Package Control: Install Package"
 3. Search for “Tabletop Simulator Lua” and press enter
