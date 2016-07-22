@@ -1,17 +1,19 @@
-settings = sublime.load_settings('TTSLuaPlugin.sublime-settings')
+import sublime
+import sublime_plugin
 
-import sublime, sublime_plugin, socket, sys, struct, time, json, os, re, io, glob
+import socket, sys, struct, time, json, os, re, io, glob
 from os import walk
-directory = os.path.dirname(os.path.realpath(__file__))+"\Lua"
+
+suffix = "\Lua"
 
 class getscriptsCommand(sublime_plugin.TextCommand):
     def run(self,edit):
-        open_all_files = settings.get('open_all_files')
+        directory = sublime.packages_path()+suffix
+        settings = sublime.load_settings('TTSLuaPlugin.sublime-settings')
         if not os.path.exists(directory):
             os.makedirs(directory)
-        if open_all_files == 0:
+        if settings.get('open_all_files') == 0:
             self.view.window().run_command("open_folder_as_project", {"folder": directory})
-        # Receive Definition
         def recv_timeout(the_socket,timeout=2):
             the_socket.setblocking(0)
             total_data=[];data='';
@@ -32,13 +34,9 @@ class getscriptsCommand(sublime_plugin.TextCommand):
                     pass
             return b''.join(total_data)
         if sublime.ok_cancel_dialog("Get Lua Scripts from game?", "Yes"):
-            # print will print to console
             # Create socket and connect to TTS server
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #print('Connecting to TTS...')
-            sys.stdout.write('Connecting to TTS...')
             sock.connect(('localhost', 39999))
-            print("Success")
             try:
                 sock.sendall('{"messageID": 0}'.encode('utf-8'))
                 # Look for the response
@@ -56,14 +54,14 @@ class getscriptsCommand(sublime_plugin.TextCommand):
                     filename = "\\"+tts_object["name"]+"."+tts_object["guid"]+".lua"
                     with io.FileIO(directory+filename, "w") as file:
                         file.write(bytes(tts_object["script"],'utf-8'))
-                    if open_all_files == 1:
+                    if settings.get('open_all_files') == 1:
                         self.view.window().open_file(directory+filename)
             finally:
                 sock.close()
-                print('Connection Terminated')
 
 class pushscriptsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        directory = sublime.packages_path()+suffix
         f = []
         for (dirpath, dirnames, filenames) in walk(directory):
             f.extend(filenames)
@@ -73,18 +71,12 @@ class pushscriptsCommand(sublime_plugin.TextCommand):
             pattern = re.compile(r'(.*)\.(.*)\.lua', re.IGNORECASE)
             match = pattern.findall(value)
             file = open(directory+"\\"+value, 'rb')
-            #data_string = json.dumps(file.read().decode('utf-8'))
             status['scriptStates'].append({"name":match[0][0],"guid":match[0][1],"script":file.read().decode('utf-8')})
-        # Create socket and connect to TTS server
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #print('Connecting to TTS...')
-        sys.stdout.write('Connecting to TTS...')
         sock.connect(('localhost', 39999))
-        print("Success")
         raw_message = json.dumps(status)
         try:
             sock.send(raw_message.encode('utf-8'))
-            sublime.status_message("TTS Scripts Sent")  # this is at bottom
+            sublime.status_message("TTS Scripts Sent")
         finally:
             sock.close()
-            print('Connection Terminated')
