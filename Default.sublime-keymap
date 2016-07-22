@@ -1,0 +1,4 @@
+[
+	{ "keys": ["ctrl+alt+s"], "command": "pushscripts"},
+	{ "keys": ["ctrl+alt+space"], "command": "getscripts"}
+]

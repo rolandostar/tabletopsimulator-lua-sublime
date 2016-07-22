@@ -1,0 +1,17 @@
+[
+{
+    "id" : "TTS",
+    "caption": "Tabletop Simulator",
+    "children":
+    [
+    {
+        "caption" : "Get Lua Scripts",
+        "command" : "getscripts"
+    },
+    {
+        "caption" : "Save and Play",
+        "command" : "pushscripts"
+    }
+    ]
+}
+]
