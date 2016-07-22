@@ -1,9 +1,0 @@
-{
-	// When getting files from the game should they all be opened?
-	"open_all_files": 1
-
-	// Changing this to 1 will try to use the plugin "Folder2Project" by divinites
-	// if the plugin is not found it'll create the files but they won't be opened.
-
-	// Files are stored in /Packages/Lua (Preferences > Browse Packages...)
-}
