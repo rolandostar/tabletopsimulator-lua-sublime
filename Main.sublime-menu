@@ -17,7 +17,7 @@
                         [
                             {
                                 "command": "open_file",
-                                "args": {"file": "${packages}/TTSLuaPlugin/TTSLuaPlugin.sublime-settings"},
+                                "args": {"file": "${packages}/Tabletop Simulator Lua/TTSLuaPlugin.sublime-settings"},
                                 "caption": "Settings – Default"
                             },
                             {
@@ -29,7 +29,7 @@
                             {
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/TTSLuaPlugin/Default (Windows).sublime-keymap",
+                                    "file": "${packages}/Tabletop Simulator Lua/Default (Windows).sublime-keymap",
                                     "platform": "Windows"
                                 },
                                 "caption": "Key Bindings – Default"

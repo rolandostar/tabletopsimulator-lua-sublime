@@ -12,7 +12,7 @@ class getscriptsCommand(sublime_plugin.TextCommand):
         settings = sublime.load_settings('TTSLuaPlugin.sublime-settings')
         if not os.path.exists(directory):
             os.makedirs(directory)
-        if settings.get('open_all_files') == 0:
+        if settings.get('open_as_project') == 1:
             self.view.window().run_command("open_folder_as_project", {"folder": directory})
         def recv_timeout(the_socket,timeout=2):
             the_socket.setblocking(0)
@@ -54,13 +54,14 @@ class getscriptsCommand(sublime_plugin.TextCommand):
                     filename = "\\"+tts_object["name"]+"."+tts_object["guid"]+".lua"
                     with io.FileIO(directory+filename, "w") as file:
                         file.write(bytes(tts_object["script"],'utf-8'))
-                    if settings.get('open_all_files') == 1:
+                    if settings.get('open_as_project') == 0:
                         self.view.window().open_file(directory+filename)
             finally:
                 sock.close()
 
 class pushscriptsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        self.view.window().run_command('save_all')
         directory = sublime.packages_path()+suffix
         f = []
         for (dirpath, dirnames, filenames) in walk(directory):
