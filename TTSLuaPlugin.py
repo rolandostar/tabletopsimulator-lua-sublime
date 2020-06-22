@@ -17,50 +17,36 @@ class getscriptsCommand(sublime_plugin.TextCommand):
             os.makedirs(directory)
         if settings.get('open_as_project') == 1:
             self.view.window().run_command("open_folder_as_project", {"folder": directory})
-        def recv_timeout(the_socket,timeout=2):
-            the_socket.setblocking(0)
-            total_data=[];data='';
-            begin=time.time()
-            while 1:
-                if total_data and time.time()-begin > timeout:
-                    break
-                elif time.time()-begin > timeout*2:
-                    break
-                try:
-                    data = the_socket.recv(8192)
-                    if data:
-                        total_data.append(data)
-                        begin = time.time()
-                    else:
-                        time.sleep(0.1)
-                except:
-                    pass
-            return b''.join(total_data)
         if sublime.ok_cancel_dialog("Get Lua Scripts from game?", "Yes"):
             # Create socket and connect to TTS server
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(('localhost', 39999))
-            try:
-                sock.sendall('{"messageID": 0}'.encode('utf-8'))
-                # Look for the response
-                raw_response = recv_timeout(sock)
-                json_string  = (raw_response.decode('utf-8')).replace("\r","")
-                status  = json.loads(json_string)
-                # TODO: Check message status
-
-                # remove cache files
-                for f in glob.glob(directory+"\*"):
-                    os.remove(f)
-
-                # for each list member create a file
-                for tts_object in status['scriptStates']:
-                    filename = "\\"+tts_object["name"]+"."+tts_object["guid"]+".lua"
-                    with io.FileIO(directory+filename, "w") as file:
-                        file.write(bytes(tts_object["script"],'utf-8'))
-                    if settings.get('open_as_project') == 0:
-                        self.view.window().open_file(directory+filename)
-            finally:
-                sock.close()
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect(('localhost', 39999))
+                sock.sendall(b'{messageID: 0}')
+            data = b''
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.bind(("localhost", 39998))
+                sock.listen(0)
+                conn, addr = sock.accept()
+                with conn:
+                    print('Connected by', addr)
+                    while True:
+                        d = conn.recv(8192)
+                        if d:
+                            data += d
+                        else:
+                            break
+            json_string  = (data.decode('utf-8')).replace("\r","")
+            status  = json.loads(json_string)
+            # TODO: Check message status
+            for f in glob.glob(directory+"\*"):
+                os.remove(f)
+            for tts_object in status['scriptStates']:
+                subs_tts_object_name = re.sub(r'[\/\\:*?"<>|]', "-", tts_object["name"])
+                filename = "\\"+subs_tts_object_name+"."+tts_object["guid"]+".lua"
+                with io.FileIO(directory+filename, "w") as file:
+                    file.write(bytes(tts_object["script"],'utf-8'))
+                if settings.get('open_as_project') == 0:
+                    self.view.window().open_file(directory+filename)
 
 class pushscriptsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
