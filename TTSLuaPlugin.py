@@ -8,7 +8,10 @@ suffix = "\Lua"
 
 class getscriptsCommand(sublime_plugin.TextCommand):
     def run(self,edit):
-        directory = sublime.packages_path()+suffix
+        if(self.view.window().folders()):
+            directory = self.view.window().folders()[0]+suffix
+        else:
+            directory = sublime.packages_path()+suffix
         settings = sublime.load_settings('TTSLuaPlugin.sublime-settings')
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -62,7 +65,10 @@ class getscriptsCommand(sublime_plugin.TextCommand):
 class pushscriptsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.window().run_command('save_all')
-        directory = sublime.packages_path()+suffix
+        if(self.view.window().folders()):
+            directory = self.view.window().folders()[0]+suffix
+        else:
+            directory = sublime.packages_path()+suffix
         f = []
         for (dirpath, dirnames, filenames) in walk(directory):
             f.extend(filenames)
