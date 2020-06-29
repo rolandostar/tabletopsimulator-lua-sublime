@@ -48,6 +48,14 @@ class getscriptsCommand(sublime_plugin.TextCommand):
                 if settings.get('open_as_project') == 0:
                     self.view.window().open_file(directory+filename)
 
+                if "ui" in tts_object.keys():
+                    filename = "\\"+subs_tts_object_name+"."+tts_object["guid"]+".xml"
+                    with io.FileIO(directory+filename, "w") as file:
+                        file.write(bytes(tts_object["ui"],'utf-8'))
+                    if settings.get('open_as_project') == 0:
+                        self.view.window().open_file(directory+filename)
+
+
 class pushscriptsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.window().run_command('save_all')
